@@ -5,6 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ManyToOne, OneToMany } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Offer } from '../../offers/entities/offer.entity';
 
 @Entity()
 export class Wish {
@@ -53,4 +56,10 @@ export class Wish {
     default: 0,
   })
   copied: number;
+
+  @ManyToOne(() => User, (user) => user.wishes)
+  owner: User;
+
+  @OneToMany(() => Offer, (offer) => offer.wish)
+  offers: Offer[];
 }
