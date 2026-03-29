@@ -24,7 +24,7 @@ export class Wishlist {
   updatedAt: Date;
 
   @Column({
-    name: 'varchar',
+    type: 'varchar',
     length: 250,
   })
   name: string;
@@ -40,9 +40,9 @@ export class Wishlist {
   image: string;
 
   @ManyToOne(() => User, (user) => user.wishlists)
-  user: User;
+  owner: User;
 
   @ManyToMany(() => Wish)
   @JoinTable()
-  wishes: Wish[];
+  items: Wish[];
 }
