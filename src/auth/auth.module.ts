@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { HashModule } from '../hash/hash.module';
 
-
 @Module({
   imports: [
     UsersModule,
