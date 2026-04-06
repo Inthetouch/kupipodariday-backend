@@ -43,6 +43,10 @@ export class UsersService {
     });
   }
 
+  async findOne(id: number): Promise<User> {
+    return this.userRepository.findOneBy({ id });
+  }
+
   findAll() {
     return `This action returns all users`;
   }
