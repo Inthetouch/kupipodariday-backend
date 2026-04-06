@@ -61,7 +61,7 @@ export class UsersService {
 
   async updateOne(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     if (updateUserDto.password) {
-      const hashedPassword = await this.hashService.generateHash(
+      updateUserDto.password = await this.hashService.generateHash(
         updateUserDto.password,
       );
     }
