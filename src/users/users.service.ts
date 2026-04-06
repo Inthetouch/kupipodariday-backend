@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { HashService } from '../hash/hash.service';
 
 @Injectable()
@@ -17,7 +18,6 @@ export class UsersService {
     const hashedPassword = await this.hashService.generateHash(
       createUserDto.password,
     );
-
     const user = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
@@ -31,23 +31,57 @@ export class UsersService {
           'Пользователь с таким email или username уже существует',
         );
       }
-
       throw error;
     }
-  }
-
-  async findByUsername(username: string): Promise<User> {
-    return this.userRepository.findOne({
-      where: { username },
-      select: ['id', 'username', 'password'],
-    });
   }
 
   async findOne(id: number): Promise<User> {
     return this.userRepository.findOneBy({ id });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findByUsername(username: string): Promise<User> {
+    return this.userRepository.findOneBy({ username });
+  }
+
+  async findUserWithPassword(username: string): Promise<User> {
+    return this.userRepository.findOne({
+      where: { username },
+      select: [
+        'id',
+        'username',
+        'email',
+        'password',
+        'avatar',
+        'about',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
+  }
+
+  async updateOne(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    if (updateUserDto.password) {
+      const hashedPassword = await this.hashService.generateHash(
+        updateUserDto.password,
+      );
+    }
+
+    try {
+      await this.userRepository.update(id, updateUserDto);
+      return this.findOne(id);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException(
+          'Пользователь с таким email или username уже существует',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async findMany(query: string): Promise<User[]> {
+    return this.userRepository.find({
+      where: [{ username: query }, { email: query }],
+    });
   }
 }

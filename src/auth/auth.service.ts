@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<User> {
-    const user = await this.usersService.findByUsername(username);
+    const user = await this.usersService.findUserWithPassword(username);
 
     if (!user) {
       throw new UnauthorizedException('Некорректная пара логин и пароль');
