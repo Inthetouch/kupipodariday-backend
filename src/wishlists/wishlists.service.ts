@@ -54,7 +54,7 @@ export class WishlistsService {
   async updateOne(
     id: number,
     userId: number,
-    UpdateWishlistDto: UpdateWishlistDto,
+    updateWishlistDto: UpdateWishlistDto,
   ) {
     const wishlist = await this.findOne(id);
 
@@ -62,13 +62,14 @@ export class WishlistsService {
       throw new ForbiddenException('Вы не можете редактировать чужие подборки');
     }
 
-    if (UpdateWishlistDto.itemsId) {
-      const items = UpdateWishlistDto.itemsId.map((itemId) => ({ id: itemId }));
-      Object.assign(wishlist, UpdateWishlistDto);
+    if (updateWishlistDto.itemsId) {
+      const items = updateWishlistDto.itemsId.map((itemId) => ({ id: itemId }));
+      Object.assign(wishlist, updateWishlistDto);
       wishlist.items = items as Wish[];
       return this.wishlistRepository.save(wishlist);
     } else {
-      await this.wishlistRepository.update(id, UpdateWishlistDto);
+      const { itemsId, ...restDto } = updateWishlistDto;
+      await this.wishlistRepository.update(id, restDto);
       return this.findOne(id);
     }
   }

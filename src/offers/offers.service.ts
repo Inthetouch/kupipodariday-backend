@@ -25,7 +25,7 @@ export class OffersService {
 
     try {
       const wish = await queryRunner.manager.findOne(Wish, {
-        where: { id: CreateOfferDto.wishId },
+        where: { id: CreateOfferDto.itemId },
         relations: ['owner'],
       });
 
