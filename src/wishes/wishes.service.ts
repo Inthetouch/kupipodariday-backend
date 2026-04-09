@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -69,7 +70,7 @@ export class WishesService {
       );
     }
     await this.wishRepository.update(wishId, UpdateWishDto);
-    return this.wishRepository.update(wishId, UpdateWishDto);
+    return this.findOne(wishId);
   }
 
   async removeOne(wishId: number, userId: number) {
@@ -83,7 +84,21 @@ export class WishesService {
 
   async copy(wishId: number, user: User) {
     const wish = await this.findOne(wishId);
+    const existingWish = await this.wishRepository.findOne({
+      where: {
+        name: wish.name,
+        link: wish.link,
+        price: wish.price,
+        owner: { id: user.id },
+      },
+    });
+
+    if (existingWish) {
+      throw new ConflictException('Вы уже копировали себе этот подарок');
+    }
+
     await this.wishRepository.update(wishId, { copied: wish.copied + 1 });
+
     const wishCopy = this.wishRepository.create({
       name: wish.name,
       link: wish.link,
@@ -95,6 +110,6 @@ export class WishesService {
       copied: 0,
     });
 
-    return await this.wishRepository.save(wishCopy);
+    return this.wishRepository.save(wishCopy);
   }
 }
